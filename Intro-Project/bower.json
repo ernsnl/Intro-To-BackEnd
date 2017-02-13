@@ -1,0 +1,35 @@
+{
+  "name": "Intro-Project",
+  "authors": [
+    "Eren Senel <ernsnl@gmail.com>"
+  ],
+  "description": "Udacity Full Stack Developer Nanodegree Project",
+  "main": "app.yaml",
+  "keywords": [
+    "Python",
+    "HTML",
+    "CSS",
+    "Javascript",
+    "Flask",
+    "Google",
+    "App",
+    "Engine",
+    "JQuery",
+    "Grunt",
+    "Bower",
+    "Font-Awesome"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1"
+  }
+}
