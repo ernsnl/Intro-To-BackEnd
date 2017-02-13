@@ -1,5 +1,5 @@
 {
-  "name": "Intro-Project",
+  "name": "intro-project",
   "authors": [
     "Eren Senel <ernsnl@gmail.com>"
   ],
@@ -30,6 +30,8 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "^3.1.1"
+    "jquery": "^3.1.1",
+    "bootstrap": "^3.3.7",
+    "font-awesome": "fontawesome#^4.7.0"
   }
 }
