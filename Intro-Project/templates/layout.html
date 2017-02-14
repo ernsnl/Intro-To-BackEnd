@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="build/css/bootstrap.min.css">
+    {% block head %} {% endblock %}
+</head>
+
+<body>
+    {% block navigation %} {% endblock %}
+    {% block content %} {% endblock %}
+    <footer class="container-fluid text-center">
+        <p>Footer Text</p>
+    </footer>
+</body>
+<script src="build/js/jquery.min.js"></script>
+<script src="build/js/bootstrap.min.js"></script>
+{% block scripts %}{% endblock %}
+
+</html>

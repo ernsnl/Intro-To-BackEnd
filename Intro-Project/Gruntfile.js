@@ -43,6 +43,13 @@ module.exports = function(grunt) {
                         src: ['bower_components/font-awesome/fonts/*'],
                         dest: 'build/fonts/',
                         filter: 'isFile'
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['bower_components/bootstrap/fonts/*'],
+                        dest: 'build/fonts/',
+                        filter: 'isFile'
                     }
                 ]
             },
