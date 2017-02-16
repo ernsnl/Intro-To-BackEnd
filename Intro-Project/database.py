@@ -25,7 +25,8 @@ TABLES['create_blog'] = ("CREATE TABLE `BlogPost`("
                          "FOREIGN KEY (`UserID`) REFERENCES User(`ID`))")
 
 
-def init_table(cursor):
+def init_table(cnx):
+    cursor = cnx.cursor()
     for name, ddl in TABLES.iteritems():
         try:
             print "Creating table {}: ".format(name)

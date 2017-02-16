@@ -16,16 +16,19 @@
 import logging
 import mysql.connector
 # [START imports]
-from flask import Flask, render_template, request
+from flask import Flask, session, redirect, url_for, escape, request, render_template
 from database import init_table
+from insert import insert_user
+from selection import select_user, select_user_by_id
+from classes.user import User
+from utils.utils import generate_random_string
 # [END imports]
 
 app = Flask(__name__)
 cnx = mysql.connector.connect(user='Udacity', password='UdacityFullStack',
                               host='188.121.44.181',
                               database='UdacityBackEnd')
-cursor = cnx.cursor()
-init_table(cursor)
+init_table(cnx)
 
 
 @app.context_processor
@@ -34,12 +37,9 @@ def utility_processor():
     return u'{1}{0:.2f}'.format(amount, currency)
   return dict(format_price=format_price)
 
-@app.route('/')
-def index():
-    return render_template('main_page.html')
-
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
+    _user = select_user_by_id(cnx,17)
     if request.method == 'POST':
         print('TO DO Validate data')
     else:
@@ -61,4 +61,15 @@ def get_user(user_id=None):
 @app.route('/publish', methods = ['POST'])
 def publish():
     return 'Error'
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        insert_user(cnx)
+        select_user(cnx)
+        return render_template('main_page.html')
+    else:
+        return redirect(url_for('login'))
+
+
 # [END form]
