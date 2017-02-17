@@ -1,6 +1,8 @@
 {% extends "layout.html" %} {% block navigation %}
-
-<nav class="navbar navbar-inverse">
+{% block head %}
+<title>Register</title>
+{% endblock %}
+<nav class="navbar navbar-inverse dark-primary-color text-primary-color">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -8,12 +10,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-            <a class="navbar-brand" href="#">Logo</a>
+            <a class="nav-link navbar-brand" href="{{url_for('index')}}">Udacity Intro To Backend Project</a>
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><span class="glyphicon glyphicon-user"></span>Login</a></li>
-                <li><a href="#"><span class="glyphicon glyphicon-user"></span>Sign-Up</a></li>
+              <li><a class='nav-link' href="{{url_for('login')}}"><i class="fa fa-sign-in" aria-hidden="true"></i><span class="link-text">Login</span></a></li>
+              <li><a class='nav-link' href="{{url_for('register')}}"><i class="fa fa-user-plus" aria-hidden="true"></i><span class="link-text">Register</span></a></li>
             </ul>
         </div>
     </div>
@@ -30,32 +32,39 @@
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="row">
                 <div class="col-xs-12">
-                    <form acion='/register' method='post' accept-charset="UTF-8" autocomplete="on" name="RegisterForm" id="RegisterForm">
+                    <form class='main-form' acion='{{ url_for('register') }}' method='POST' accept-charset="UTF-8" autocomplete="on" name="RegisterForm" id="RegisterForm">
                         <div class="form-group">
                             <label for="FirstName">First Name</label>
-                            <input type="text" class="form-control" id="FirstName" placeholder="First Name">
+                            <input type="text" name="FirstName" class="form-control" id="FirstName" placeholder="First Name" value="{{user.first_name if user}}">
                         </div>
                         <div class="form-group">
                             <label for="LastName">Last Name</label>
-                            <input type="text" class="form-control" id="LastName" placeholder="Last Name">
+                            <input type="text" name="LastName"class="form-control" id="LastName" placeholder="Last Name" value="{{user.last_name if user}}">
                         </div>
                         <div class="form-group">
                             <label for="Username">Username</label>
-                            <input type="text" class="form-control" id="Username" placeholder="Username">
+                            <input type="text" name="Username" class="form-control" id="Username" placeholder="Username" value="{{user.username if user}}">
                         </div>
                         <div class="form-group">
                             <label for="Email">Email address</label>
-                            <input type="email" class="form-control" id="Email" placeholder="Email">
+                            <input type="email" name="Email" class="form-control" id="Email" placeholder="Email" value="{{user.email if user}}">
                         </div>
                         <div class="form-group">
                             <label for="Password">Password</label>
-                            <input type="password" class="form-control" id="Password" placeholder="Password">
+                            <input type="password" name="Password" class="form-control" id="Password" placeholder="Password">
                         </div>
                         <div class="form-group">
                             <label for="RetypePassword">Retype Password</label>
-                            <input type="password" class="form-control" id="RetypePassword" placeholder="Retype Password">
+                            <input type="password" name="RetypePassword" class="form-control" id="RetypePassword" placeholder="Retype Password">
                         </div>
-
+                        {% if error %}
+                        {% for item in error %}
+                        <div class="form-group alert alert-danger fade in">
+                          <a href="#" class="close" data-dismiss="alert">&times;</a>
+                          <strong>Error! </strong>{{item.error_msg}}
+                        </div>
+                        {% endfor %}
+                        {% endif%}
                         <button type="submit" class="btn btn-default">Register</button>
                     </form>
                 </div>
@@ -64,3 +73,5 @@
     </div>
 </div>
 {% endblock %}
+{% block scripts %}
+{% endblock%}

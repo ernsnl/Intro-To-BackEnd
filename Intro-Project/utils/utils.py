@@ -15,3 +15,15 @@ def generate_random_string(size=6):
 
 def hash_password(password, salt):
     return str(generate_password_hash(password + salt))
+
+
+def check_password(hash_password, password, password_salt):
+    return check_password_hash(hash_password, password + password_salt)
+
+
+def hash_password_sha256(password, password_salt):
+    return hashlib.sha256(password_salt.encode() + password.encode()).hexdigest()
+
+
+def check_password_sha256(hashed_password, password, password_salt):
+    return hashed_password == hashlib.sha256(password_salt.encode() + password.encode()).hexdigest()

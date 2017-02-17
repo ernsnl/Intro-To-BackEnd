@@ -2,15 +2,11 @@ from collections import namedtuple
 
 
 class User(namedtuple('User', ['id', 'first_name', 'last_name',
-                                'username', 'email', 'password', 'password_salt'])):
+                               'username', 'email', 'password', 'password_salt'])):
 
-    def __init__(self):
+    def __init__(self, id, first_name, last_name,
+                 username, email, password, password_salt):
         self.data = None
-        self.return_user = None
-
-    def map_to_data(self, row):
-        self.data._make(row)
-        return self.data
 
     '''__slots = ()
 
