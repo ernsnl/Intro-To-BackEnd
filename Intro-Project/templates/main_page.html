@@ -17,7 +17,7 @@
                     <span class="label label-danger">Friends</span>
                 </p>
             </div>
-            <p><a href="#">Link</a></p>
+            <p><a href="{{url_for('category_list')}}">Categories</a></p>
             <p><a href="#">Link</a></p>
             <p><a href="#">Link</a></p>
         </div>
@@ -76,18 +76,23 @@
             </div>
         </div>
         <div class="col-sm-2 well">
-            <div class="thumbnail">
-                <p>Upcoming Events:</p>
-                <img src="paris.jpg" alt="Paris" width="400" height="300">
-                <p><strong>Paris</strong></p>
-                <p>Fri. 27 November 2015</p>
-                <button class="btn btn-primary">Info</button>
-            </div>
-            <div class="well">
-                <p>ADS</p>
-            </div>
-            <div class="well">
-                <p>ADS</p>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="well">
+                        <div class="category-headline">
+                            <h3>Categories</h3>
+                        </div>
+                        {% if category %}
+                        <ul class="list-unstyled">
+                            {% for item in category %}
+                            <li><a href="{{url_for('category_blog', category_id = item.id)}}">{{item.name}}</a></li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>There is no category.</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

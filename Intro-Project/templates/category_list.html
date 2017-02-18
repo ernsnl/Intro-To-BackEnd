@@ -1,0 +1,33 @@
+{% extends "log_layout.html" %} {% block content %}
+<div class="container text-center">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                    <h3 class='list-heading'>Categories</h3>
+                    <div class="row">
+                        {% if category %} {% for item in category %}
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <p class="category-section">
+                                      <a class='category-link' href="{{url_for('category_blog', category_id = item.id)}}">{{item.name}}</a>
+                                      <a class="btn btn-primary category-button" href="{{url_for('edit_category', category_id = item.id)}}" role="button">Edit</a>
+                                    </p>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %} {% else %}
+                        <div class="col-xs-12">
+                            <p>There is no category.</p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

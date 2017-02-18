@@ -30,8 +30,38 @@
     border-bottom: 1px solid #BDBDBD;
 }
 
-.navbar{
-  border-radius: 0 !important;
+.navbar {
+    border-radius: 0 !important;
+}
+
+.list-heading {
+    border-bottom: 1px solid #BDBDBD;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.category-section {
+    padding: 15px;
+    border: 1px solid #BDBDBD;
+    border-radius: 2px;
+    float: left;
+    width: 100%;
+}
+
+.category-link {
+    text-align: left;
+    color: #757575;
+    float: left;
+    padding: 6px 12px;
+}
+
+.category-link:hover {
+    text-decoration: none;
+}
+
+.category-button {
+    text-align: right;
+    float: right;
 }
 
 .page-footer {

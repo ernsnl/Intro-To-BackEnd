@@ -121,9 +121,11 @@ def register():
 def index():
     current_username = session['username']
     user = db.get_user_by_username(current_username)
-    print create_gravatar(user.email)
-    return render_template('main_page.html', gravatar_url=create_gravatar(user.email))
+    return render_template('main_page.html', gravatar_url=create_gravatar(user.email), category= db.get_categories())
 
+@app.route('/c')
+def category_list():
+    return render_template('category_list.html', category=db.get_categories())
 
 @app.route('/c/edit', methods=['GET', 'POST'])
 @app.route('/c/edit/<int:category_id>', methods=['GET', 'POST'])
@@ -160,17 +162,19 @@ def edit_category(category_id=None):
             #TO DO: add redirect url
             return redirect(url_for('index'))
 
+@app.route('/b')
+def blog():
+    return 'Get all the blocks'
 
+
+
+@app.route('/c/<int:category_id>')
+def category_blog(category_id):
+    return 'Welcome ' + str(category_id)
 @app.route('/user/')
 @app.route('/user/<user_id>')
 def get_user(user_id=None):
     return ("User " + str(user_id))
-
-
-@app.route('/b/view/<blog_id>', methods=['GET'])
-def view_blog(blog_id=None):
-    return 'Error'
-
 
 @app.route('/b/edit/<blog_id>', methods=['GET', 'POST'])
 def blog_edit(blog_id=None):
