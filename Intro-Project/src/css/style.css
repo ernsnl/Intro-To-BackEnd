@@ -6,16 +6,32 @@
     cursor: pointer !important;
     text-decoration: none !important;
     color: #FFF !important;
-    background-color:#3F51B5 !important;
+    background-color: #3F51B5 !important;
 }
 
 .link-text {
     padding: 10px;
 }
 
-.main-form{
-  padding: 15px;
-  border:1px solid #BDBDBD;
+.main-form {
+    padding: 15px;
+    border: 1px solid #BDBDBD;
+}
+
+.info-section {
+    padding: 15px;
+    border: 1px solid #BDBDBD;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.info-section dd {
+    text-align: right;
+    border-bottom: 1px solid #BDBDBD;
+}
+
+.navbar{
+  border-radius: 0 !important;
 }
 
 .page-footer {

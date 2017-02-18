@@ -1,0 +1,20 @@
+{% extends "log_layout.html" %} {% block content %}
+<div class="container text-center">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12 col-sm-10 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+                    <dl class="dl-horizontal info-section">
+                        <dt>Full Name</dt>
+                        <dd>{{user.first_name + " " + user.last_name}}</dd>
+                        <dt>Username</dt>
+                        <dd>{{user.username}}</dd>
+                        <dt>Email</dt>
+                        <dd>{{user.email}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

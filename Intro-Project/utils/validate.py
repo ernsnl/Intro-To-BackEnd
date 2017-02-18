@@ -52,11 +52,16 @@ def validate_password_data(password, repeat_password,  min=6, max=32):
                       "at least one number and at least one following special characters: " +
                       " -+_!@#$%^&*.,?")
         errors.append(error)
-    if (password != repeat_password):
+    if (len(repeat_password) > 0 and password != repeat_password):
         error = Error("Repeat Password", "Confirm password does not match.")
         errors.append(error)
     return errors
 
+def validate_login_data(_user):
+    errors = []
+    errors.extend(validate_email_data(_user.email, 1, 250))
+    errors.extend(validate_password_data(_user.password, ''))
+    return errors
 
 def validate_user_data(_user, repeat_password):
     errors = []

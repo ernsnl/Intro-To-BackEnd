@@ -5,8 +5,14 @@ import string
 import random
 import hashlib
 import uuid
+import urllib
 
 string_full = string.ascii_uppercase + string.digits
+
+def create_gravatar(email,size = 64):
+    gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
+    gravatar_url += urllib.urlencode({'d': 'wavatar', 's': str(size)})
+    return gravatar_url
 
 
 def generate_random_string(size=6):

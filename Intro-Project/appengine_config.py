@@ -17,3 +17,4 @@ from google.appengine.ext import vendor
 vendor.add('lib')
 vendor.add('classes')
 vendor.add('utils')
+vendor.add('orm_classes')
