@@ -6,8 +6,10 @@ import urllib, hashlib
 
 Base = declarative_base()
 
+
+
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'User'
     id = Column(Integer, primary_key=True, autoincrement=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
@@ -16,6 +18,13 @@ class User(Base):
     password = Column(String(100), nullable=False)
     password_salt = Column(String(100), nullable=False)
 
+class Follower(Base):
+    __tablename__ = 'Follower'
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True, autoincrement=False)
+    following_id = Column(Integer, ForeignKey('User.id'), primary_key=True, autoincrement=False)
+
+    follower = relationship("User", foreign_keys="Follower.following_id")
+    following = relationship("User", foreign_keys="Follower.user_id")
 
 engine = create_engine(
     'mysql+pymysql://Udacity:UdacityFullStack@188.121.44.181/UdacityBackEnd')

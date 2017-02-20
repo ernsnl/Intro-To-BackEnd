@@ -1,0 +1,55 @@
+{% extends "log_layout.html" %} {% block content %}
+<div class="container text-center">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                    <h3 class='list-heading'>Search Users</h3>
+                    <div class="row">
+                      <div class="col-xs-12">
+                        <form class="SearchForm" action="{{url_for('search')}}" method="post">
+                          <input type="text" class="form-control" id="SearchUsername" name="SearchUsername" placeholder="Search by Username">
+                        </form>
+                      </div>
+                    </div>
+                    <div class="row">
+                        {% if users and users.data|length > 0 %}
+                        <hr>
+                        {% for u in users.data %}
+                        {% if u.id != current_user.id %}
+                          <div class="col-xs-12 col-sm-6">
+                              <div class="row">
+                                  <div class="col-xs-12">
+                                      <p class="category-section">
+                                        <a title="{{u.username}}" class='category-link' href="javascript:alert('Will See Info')">
+                                          <img src="{{create_gra(u.email)}}"
+                                          alt="{{u.first_name + ' ' + u.last_name}}">
+                                        </a>
+                                        <a class="btn btn-primary category-button" href="javascript:alert('Will Follow')" role="button">
+                                          {% if following and following|length > 0 and u.id in following %}
+                                          Unfollow
+                                          {% else %}
+                                          Follow
+                                          {% endif %}
+
+                                        </a>
+                                      </p>
+
+                                  </div>
+                              </div>
+                          </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        <div class="col-xs-12">
+                            <p style='margin-top:10px'>There is no user.</p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

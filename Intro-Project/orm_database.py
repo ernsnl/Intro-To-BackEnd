@@ -1,5 +1,6 @@
-from orm_classes.user import User
-from orm_classes.category import Category
+from orm_classes.user import User, Follower
+from orm_classes.blog import Category, Tag
+from classes.list_result import ListResult
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -27,11 +28,8 @@ class DatabaseOperations:
         print newUser.id
         return newUser
 
-    def get_users(self):
-        user_list = []
-        for _u in session.query(User).order_by(User.id):
-            user_list.append(_u)
-        return user_list
+    def get_users(self, page=1, page_size=25):
+        return ListResult(session.query(User).order_by(User.id).offset((page - 1) * 25).all(), session.query(User).count(), page, page_size)
 
     def get_user_by_email(self, email):
         try:
@@ -53,10 +51,27 @@ class DatabaseOperations:
         else:
             pass
 
-    def get_categories(self):
-        cat_list = []
-        for _c in session.query(Category).order_by(Category.id):
-            cat_list.append(_c)
+    def get_user_following(self, id, page=1, page_size=25):
+        following_list = ListResult(session.query(Follower).filter(
+            Follower.user_id == id).offset((page - 1) * page_size).all(),
+            session.query(Follower).filter(Follower.user_id == id).count(), page, page_size)
+        return following_list
+
+    def get_user_follower(self, id, page=1, page_size=25):
+        follower_list = ListResult(session.query(Follower).filter(
+            Follower.following_id == id).offset((page - 1) * page_size).all(),
+            session.query(Follower).filter(Follower.following_id == id).count(), page, page_size)
+        return follower_list
+
+    def follow_user(self, user_id, follow_id):
+        follow = Follower(user_id=user_id, following_id=follow_id)
+        session.add(follow)
+        session.commit()
+
+    def get_categories(self, page=1, page_size=25):
+        cat_list = ListResult(session.query(Category).order_by(
+            Category.id).offset((page - 1) * page_size).all(),
+            session.query(Category).order_by(Category.id).count(), page, page_size)
         return cat_list
 
     def get_category(self, id):
@@ -77,3 +92,28 @@ class DatabaseOperations:
         existing_cat.name = category.name
         session.commit()
         return existing_cat
+
+    def get_tags(self, page=1, page_size=25):
+        tag_list = ListResult(session.query(Tag).order_by(
+            Tag.id).offset((page - 1) * page_size).all(),
+            session.query(Tag).order_by(Tag.id).count(), page, page_size)
+        return tag_list
+
+    def get_tag(self, id):
+        return session.query(Tag).filter(Tag.id == id).first()
+
+    def get_tag_by_name(self, name):
+        return session.query(Tag).filter(Tag.name == name).first()
+
+    def add_tag(self, name):
+        tag = Tag(name=name)
+        session.add(tag)
+        session.flush()
+        session.refresh(tag)
+        return tag
+
+    def update_tag(self, tag):
+        existing_tag = session.query(Tag).get(tag.id)
+        existing_tag.name = tag.name
+        session.commit()
+        return existing_tag
