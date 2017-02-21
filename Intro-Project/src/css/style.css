@@ -85,6 +85,11 @@
     float: left;
 }
 
+.share-button{
+  margin-top:15px;
+  margin-bottom:20px;
+}
+
 .page-footer {
     padding: 20px;
     margin-top: 40px;

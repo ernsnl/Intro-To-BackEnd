@@ -21,11 +21,11 @@
                               <div class="row">
                                   <div class="col-xs-12">
                                       <p class="category-section">
-                                        <a title="{{u.username}}" class='category-link' href="javascript:alert('Will See Info')">
+                                        <a title="{{u.username}}" class='category-link' href="{{url_for('view_user', user_id = u.id)}}">
                                           <img src="{{create_gra(u.email)}}"
                                           alt="{{u.first_name + ' ' + u.last_name}}">
                                         </a>
-                                        <a class="btn btn-primary category-button" href="javascript:alert('Will Follow')" role="button">
+                                        <a class="btn btn-primary category-button" id='followlink{{u.id}}' href="#" onclick="followUser('{{u.id}}')" role="button">
                                           {% if following and following|length > 0 and u.id in following %}
                                           Unfollow
                                           {% else %}
@@ -52,4 +52,28 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+function followUser(id){
+  $.ajax({
+    url: '{{url_for('follow')}}',
+    dataType: 'text',
+    method: 'GET',
+    beforeSend: function(){
+      $('#followlink' + id).attr('disabled','disabled');
+    },
+    data: { follow_id: id },
+    error: function(){
+        alert('Something went wrong!');
+        $('#followlink' + id).removeAttr('disabled','disabled');
+    },
+    success: function(response){
+      $('#followlink' + id).removeAttr('disabled','disabled');
+      $('#followlink' + id).text(response.split('#')[1]);
+    }
+
+  })
+}
+</script>
 {% endblock %}

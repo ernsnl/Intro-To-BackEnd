@@ -19,8 +19,7 @@ import json
 # [START imports]
 from flask import Flask, session, redirect, url_for, escape, request, render_template
 from utils.utils import check_password_sha256, hash_password_sha256, create_gravatar
-from orm_classes.user import User
-from orm_classes.blog import Category, Tag
+from orm_classes.user import User, Category, Tag
 from classes.error import Error
 from utils.validate import validate_user_data, validate_login_data
 from orm_database import DatabaseOperations
@@ -39,6 +38,9 @@ def before_request():
     if 'username' not in session:
         if request.endpoint != 'login' and request.endpoint != 'register':
             return redirect(url_for('login', returnUrl=request.path))
+    else:
+        if request.endpoint == 'login' or request.endpoint == 'register':
+            return redirect(url_for('index'))
 
 
 @app.context_processor
@@ -112,32 +114,37 @@ def register():
 
 
 @app.route('/about', methods=['GET'])
-def about():
-    current_username = session['username']
-    user = db.get_user_by_username(current_username)
-    return render_template('about.html', user=user)
+@app.route('/about/<int:user_id>', methods=['GET'])
+def about(user_id=None):
+    if user_id is None:
+        current_username = session['username']
+        user = db.get_user_by_username(current_username)
+        return render_template('about.html', user=user)
+    else:
+        user = db.get_user(user_id)
+        return render_template('about.html', user=user)
 
 
 @app.route('/')
 def index():
-    current_username = session['username']
-    user = db.get_user_by_username(current_username)
-    #db.follow_user(user.id, 2)
-    following = db.get_user_following(user.id, 1, 9)
-    followers = db.get_user_follower(user.id, 1, 9)
-    categories = db.get_categories()
-    tags = db.get_tags()
-    return render_template('main_page.html',
-                           gravatar_url=create_gravatar(user.email),
-                           categories=categories,
-                           followers=followers,
-                           following=following,
-                           tags=tags)
-
-
-@app.route('/user/<int:user_id>', methods=['GET'])
-def view_user(user_id):
-    return view_user
+    try:
+        current_username = session['username']
+        user = db.get_user_by_username(current_username)
+        categories = db.get_categories()
+        tags = db.get_tags()
+        return render_template('main_page.html',
+                               current_user=user,
+                               viewed_user=user,
+                               gravatar_url=create_gravatar(user.email),
+                               categories=categories,
+                               followers=user.followers,
+                               following=user.following,
+                               tags=tags,
+                               blogs=[])
+    except Exception as e:
+        print e
+    else:
+        pass
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -147,11 +154,9 @@ def search():
     else:
         all_users = db.get_users()
         current_user = db.get_user_by_username(session['username'])
-        current_following =  db.get_user_following(
-            current_user.id, page=1, page_size=9999)
-        following_id_list = [o.following_id for o in current_following.data]
-        print following_id_list
-        return render_template('search.html', users=all_users,
+        following_id_list = [o.id for o in current_user.following]
+        return render_template('search.html',
+                               users=all_users,
                                following=following_id_list,
                                current_user=current_user)
 
@@ -160,29 +165,54 @@ def search():
     return 'Search'
 
 
-@app.route('/following')
-@app.route('/following/<int:user_id>')
-def get_following(user_id=None):
-    current_username = session['username']
-    user = db.get_user_by_username(current_username)
-    return 'Error'
+@app.route('/user/')
+@app.route('/user/<int:user_id>')
+def view_user(user_id=None):
+    if user_id:
+        current_user = db.get_user_by_username(session['username'])
+        if user_id == current_user.id:
+            return redirect(url_for('index'))
+        request_user = db.get_user(id=user_id)
+        if request_user is None:
+            return redirect(url_for('index'))
+        categories = db.get_categories()
+        tags = db.get_tags()
+        return render_template('main_page.html',
+                               current_user=current_user,
+                               viewed_user=request_user,
+                               gravatar_url=create_gravatar(
+                                   request_user.email),
+                               categories=categories,
+                               followers=request_user.followers,
+                               following=request_user.following,
+                               tags=tags,
+                               blogs=[])
+
+    return redirect(url_for('index'))
 
 
-@app.route('/follewers')
-@app.route('/follewers/<int:user_id>')
-def get_followers(user_id=None):
-    current_username = session['username']
-    user = db.get_user_by_username(current_username)
-    return 'Error'
+@app.route('/follow', methods=['GET'])
+def follow():
+    follow_id = request.args.get('follow_id')
+    if follow_id:
+        current_user = db.get_user_by_username(session['username'])
+        follow_user = db.get_user(follow_id)
+        print follow_user in current_user.following
+        if not follow_user in current_user.following:
+            db.follow_user(current_user, follow_user)
+            return 'Success#Unfollow'
+        else:
+            db.unfollow_user(current_user, follow_user)
+            return 'Success#Follow'
 
 
-@app.route('/c')
+@app.route('/categorylist')
 def category_list():
     return render_template('category_list.html', category=db.get_categories())
 
 
-@app.route('/c/edit', methods=['GET', 'POST'])
-@app.route('/c/edit/<int:category_id>', methods=['GET', 'POST'])
+@app.route('/category/edit', methods=['GET', 'POST'])
+@app.route('/category/edit/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id=None):
     if request.method == 'GET':
         if category_id:
@@ -221,13 +251,13 @@ def edit_category(category_id=None):
             return redirect(url_for('category_list'))
 
 
-@app.route('/t')
+@app.route('/taglist')
 def tag_list():
     return render_template('tag_list.html', tag=db.get_tags())
 
 
-@app.route('/t/edit', methods=['GET', 'POST'])
-@app.route('/t/edit/<int:tag_id>', methods=['GET', 'POST'])
+@app.route('/tag/edit', methods=['GET', 'POST'])
+@app.route('/tag/edit/<int:tag_id>', methods=['GET', 'POST'])
 def edit_tag(tag_id=None):
     if request.method == 'GET':
         if tag_id:
@@ -242,12 +272,14 @@ def edit_tag(tag_id=None):
         if tag_id:
             ex_tag = db.get_tag(tag_id)
             if ex_tag:
-                ex_tag.name = request.form.get('Name')
-                if db.get_tag_by_name(ex_tag.name):
+                if db.get_tag_by_name(request.form.get('Name')):
+                    print 'asdasd'
+                    ex_tag.name = request.form.get('Name')
                     errors = []
                     errors.append(Error('Existing Tag',
                                         'Name is used by another tag.'))
                     return render_template('edit_tag.html', tag=ex_tag, errorr=errors)
+                ex_tag.name = request.form.get('Name')
                 db.update_tag(ex_tag)
                 # TO DO: add redirect url
                 return redirect(url_for('tag_list'))
@@ -266,30 +298,31 @@ def edit_tag(tag_id=None):
             return redirect(url_for('tag_list'))
 
 
-@app.route('/b')
-def blog():
+@app.route('/posts')
+def blog_posts():
     return 'Get all the blocks'
 
 
-@app.route('/b/edit/<blog_id>', methods=['GET', 'POST'])
+@app.route('/post/edit')
+@app.route('/post/edit/<blog_id>', methods=['GET', 'POST'])
 def blog_edit(blog_id=None):
+    if request.method = 'POST':
+        return 'Create POST'
+    else:
+        return render_template('edit_blog.html',
+                               categories=db.get_categories(),
+                               tags=db.get_tags())
     return 'Error'
 
 
-@app.route('/bc/<int:category_id>')
+@app.route('/category_post/<int:category_id>')
 def category_blog(category_id):
     return 'Welcome ' + str(category_id)
 
 
-@app.route('/bt/<int:tag_id>')
+@app.route('/tag_post/<int:tag_id>')
 def tag_blog(tag_id):
     return 'Welcome ' + str(tag_id)
-
-
-@app.route('/user/')
-@app.route('/user/<user_id>')
-def get_user(user_id=None):
-    return ("User " + str(user_id))
 
 
 @app.errorhandler(404)

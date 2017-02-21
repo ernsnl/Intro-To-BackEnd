@@ -1,5 +1,4 @@
-from orm_classes.user import User, Follower
-from orm_classes.blog import Category, Tag
+from orm_classes.user import User, Category, Tag, FollowRelation, LikeRelation, Blog, Comment
 from classes.list_result import ListResult
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,12 +28,15 @@ class DatabaseOperations:
         return newUser
 
     def get_users(self, page=1, page_size=25):
-        return ListResult(session.query(User).order_by(User.id).offset((page - 1) * 25).all(), session.query(User).count(), page, page_size)
+        return ListResult(session.query(User).order_by(User.id).all(), session.query(User).count(), page, page_size)
+
+    def get_user(self, id):
+        return session.query(User).filter(User.id == id).first()
 
     def get_user_by_email(self, email):
         try:
             if engine.dialect.has_table(engine, User.__tablename__):
-                return session.query(User).filter(User.email == email).first()
+                return session.query(User).join(FollowRelation).filter(User.email == email).first()
             return None
         except Exception as e:
             return None
@@ -47,30 +49,27 @@ class DatabaseOperations:
                 return session.query(User).filter(User.username == username).first()
             return None
         except Exception as e:
+            print e
             return None
         else:
             pass
 
-    def get_user_following(self, id, page=1, page_size=25):
-        following_list = ListResult(session.query(Follower).filter(
-            Follower.user_id == id).offset((page - 1) * page_size).all(),
-            session.query(Follower).filter(Follower.user_id == id).count(), page, page_size)
-        return following_list
+    def follow_user(self, user, following_user):
+        session.execute(FollowRelation.insert().values(
+            [(user.id, following_user.id)]))
 
-    def get_user_follower(self, id, page=1, page_size=25):
-        follower_list = ListResult(session.query(Follower).filter(
-            Follower.following_id == id).offset((page - 1) * page_size).all(),
-            session.query(Follower).filter(Follower.following_id == id).count(), page, page_size)
-        return follower_list
-
-    def follow_user(self, user_id, follow_id):
-        follow = Follower(user_id=user_id, following_id=follow_id)
-        session.add(follow)
-        session.commit()
+    def unfollow_user(self, user, unfollow_user):
+        try:
+            session.execute(FollowRelation.delete(user.id == FollowRelation.c.follower_id
+                                                  and unfollow_user.id == FollowRelation.c.followee_id))
+        except Exception as e:
+            print e
+        else:
+            pass
 
     def get_categories(self, page=1, page_size=25):
         cat_list = ListResult(session.query(Category).order_by(
-            Category.id).offset((page - 1) * page_size).all(),
+            Category.name).all(),
             session.query(Category).order_by(Category.id).count(), page, page_size)
         return cat_list
 
@@ -95,7 +94,7 @@ class DatabaseOperations:
 
     def get_tags(self, page=1, page_size=25):
         tag_list = ListResult(session.query(Tag).order_by(
-            Tag.id).offset((page - 1) * page_size).all(),
+            Tag.name).all(),
             session.query(Tag).order_by(Tag.id).count(), page, page_size)
         return tag_list
 

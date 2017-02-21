@@ -3,37 +3,25 @@
     <div class="row">
         <div class="col-sm-3 well">
             <div class="well">
-                <p><a href="{{url_for('about')}}">My Profile</a></p>
+                <p><a href="{{url_for('about', user_id = viewed_user.id)}}">About</a></p>
                 <img src="{{ gravatar_url }}" class="" height="65" width="65" alt="Avatar">
             </div>
             <div class="well col-xs-12">
-                <h4>Following</h4>
-                {% if following and following.data|length > 0 %}
-                  {% for user in following.data %}
-                  <a class='follow-link' href="{{url_for('view_user', user_id = user.follower.id)}}" title='{{user.follower.username}}'>
-                    <img src="{{create_gra(user.follower.email)}}" alt="{{user.follower.first_name + ' ' + user.follower.last_name}}">
-                  </a>
-                  {% endfor %}
-                  {% if following.data|length < following.total_count %}
-                      <a href="{{url_for('get_following')}}" title="More..">More...</a>
-                  {% endif %}
-                {% else %}
-                <p>You are not following anyone.</p>
+                <h4>Following</h4> {% if following and following|length > 0 %} {% for user in following %}
+                <a class='follow-link' href="{{url_for('view_user', user_id = user.id)}}" title='{{user.username}}'>
+                    <img src="{{create_gra(user.email)}}" alt="{{user.first_name + ' ' + user.last_name}}">
+                </a>
+                {% endfor %} {% else %}
+                <p>Not following anyone.</p>
                 {% endif %}
             </div>
             <div class="well col-xs-12">
-                <h4>Followers</h4>
-                {% if followers and followers.data|length > 0 %}
-                  {% for user in followers.data %}
-                  <a class='follow-link' href="{{url_for('view_user', user_id = user.following.id)}}" title='{{user.following.username}}'>
-                    <img src="{{create_gra(user.following.email)}}" alt="{{user.following.first_name + ' ' + user.following.last_name}}">
-                  </a>
-                  {% endfor %}
-                  {% if followers.data|length < followers.total_count %}
-                      <a href="{{url_for('get_followers')}}" title="More..">More...</a>
-                  {% endif %}
-                {% else %}
-                <p>You have no followers</p>
+                <h4>Followers</h4> {% if followers and followers|length > 0 %} {% for user in followers %}
+                <a class='follow-link' href="{{url_for('view_user', user_id = user.id)}}" title='{{user.username}}'>
+                    <img src="{{create_gra(user.email)}}" alt="{{user.first_name + ' ' + user.last_name}}">
+                </a>
+                {% endfor %} {% else %}
+                <p>No followers</p>
                 {% endif %}
             </div>
             <p><a href="{{url_for('category_list')}}">Categories</a></p>
@@ -41,6 +29,13 @@
             <p><a href="#">Link</a></p>
         </div>
         <div class="col-sm-7">
+            {% if current_user.id == viewed_user.id %}
+            <div class="row">
+                <div class="col-xs-12 share-button">
+                    <a href="{{url_for('blog_edit')}}" class="btn btn-primary btn-lg btn-block">Share Your Thoughts</a>
+                </div>
+            </div>
+            {% endif %}
             <div class="row">
                 <div class="col-sm-3">
                     <div class="well">
@@ -54,36 +49,34 @@
                     </div>
                 </div>
             </div>
+
         </div>
         <div class="col-sm-2">
             <div class="row">
                 <div class="col-xs-12 well">
-                        <div class="category-headline">
-                            <h3>Categories</h3>
-                        </div>
-                        {% if categories and categories.data|length > 0 %}
-                        <ul class="list-unstyled">
-                            {% for category in categories.data %}
-                            <li><a href="{{url_for('category_blog', category_id = category.id)}}">{{category.name}}</a></li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p>There is no category.</p>
-                        {% endif %}
+                    <div class="category-headline">
+                        <h3>Categories</h3>
+                    </div>
+                    {% if categories and categories.data|length > 0 %}
+                    <ul class="list-unstyled">
+                        {% for category in categories.data %}
+                        <li><a href="{{url_for('category_blog', category_id = category.id)}}">{{category.name}}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>There is no category.</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12 well">
-                        <div class="category-headline">
-                            <h3>Tags</h3>
-                        </div>
-                        {% if tags and tags.data|count > 0 %}
-                            {% for tag in tags %}
-                            <a class='tag-link' href="{{url_for('tag_blog', tag_id = tag.id)}}">{{tag.name}}</a>
-                            {% endfor %}
-                        {% else %}
-                        <p>There is no tag.</p>
-                        {% endif %}
+                    <div class="category-headline">
+                        <h3>Tags</h3>
+                    </div>
+                    {% if tags and tags.data|count > 0 %} {% for tag in tags.data %}
+                    <a class='tag-link' href="{{url_for('tag_blog', tag_id = tag.id)}}">{{tag.name}}</a> {% endfor %} {% else %}
+                    <p>There is no tag.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
