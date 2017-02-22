@@ -1,2 +1,3 @@
 python-docs-samples
 bower_components
+*.pyc
