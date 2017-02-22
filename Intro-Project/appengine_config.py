@@ -14,7 +14,7 @@
 
 from google.appengine.ext import vendor
 # Add any libraries installed in the "lib" folder.
-vendor.add('lib')
+vendor.add('libb')
 vendor.add('classes')
 vendor.add('utils')
 vendor.add('orm_classes')

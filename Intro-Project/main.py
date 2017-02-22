@@ -14,7 +14,6 @@
 
 # [START app]
 import logging
-import mysql.connector
 import json
 import datetime
 # [START imports]
