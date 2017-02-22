@@ -8,7 +8,7 @@ The project is built by using Python2, HTML5, CSS3.
 
 Google App Engine with Flask is used for this project.
 
-App is currently deployed [here]{https://personalwebsite-a6274.appspot.com}
+App is currently deployed [here](https://personalwebsite-a6274.appspot.com)
 
 ## How to Install Project
 
