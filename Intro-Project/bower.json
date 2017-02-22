@@ -20,7 +20,7 @@
     "Font-Awesome"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/ernsnl/Intro-To-BackEnd",
   "private": true,
   "ignore": [
     "**/.*",

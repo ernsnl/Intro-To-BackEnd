@@ -8,7 +8,7 @@
                     <div class="row">
                       <div class="col-xs-12">
                         <form class="SearchForm" action="{{url_for('search')}}" method="post">
-                          <input type="text" class="form-control" id="SearchUsername" name="SearchUsername" placeholder="Search by Username">
+                          <input type="text" value="{{ search_text if search_text}}" class="form-control" id="SearchUsername" name="u" placeholder="Search by Username">
                         </form>
                       </div>
                     </div>
@@ -16,11 +16,11 @@
                         {% if users and users.data|length > 0 %}
                         <hr>
                         {% for u in users.data %}
-                        {% if u.id != current_user.id %}
                           <div class="col-xs-12 col-sm-6">
                               <div class="row">
                                   <div class="col-xs-12">
                                       <p class="category-section">
+                                        {% if u.id != current_user.id %}
                                         <a title="{{u.username}}" class='category-link' href="{{url_for('view_user', user_id = u.id)}}">
                                           <img src="{{create_gra(u.email)}}"
                                           alt="{{u.first_name + ' ' + u.last_name}}">
@@ -33,12 +33,20 @@
                                           {% endif %}
 
                                         </a>
+                                        {% else %}
+                                        <a title="{{u.username}}" class='category-link' href="{{url_for('view_user', user_id = u.id)}}">
+                                          <img src="{{create_gra(u.email)}}"
+                                          alt="{{u.first_name + ' ' + u.last_name}}">
+                                        </a>
+                                        <a class="btn btn-primary category-button" id='' href="{{url_for('view_user', user_id = u.id)}}" onclick="" role="button">
+                                          View
+                                        </a>
+                                        {% endif %}
                                       </p>
 
                                   </div>
                               </div>
                           </div>
-                        {% endif %}
                         {% endfor %}
                         {% else %}
                         <div class="col-xs-12">

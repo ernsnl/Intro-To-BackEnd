@@ -1,0 +1,90 @@
+{% extends "log_layout.html" %} {% block content %}
+<div class="container text-center">
+    <div class="row">
+        <div class="col-sm-9 col-sm-offset-1">
+            {% if current_user.id == blog.blog_user_id %}
+            <div class="row">
+                <div class="col-xs-12 share-button">
+                    <a href="{{url_for('edit_blog', blog_id = blog.blog_user_id )}}" class="btn btn-primary btn-lg btn-block">Edit Blog</a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2 class='view-title'>{{blog.blog_title}}</h2>
+                    <p class='view-content'>{{blog.blog_content}}</p>
+                </div>
+            </div>
+
+            {% if blog.blog_comments and blog.blog_comments|length > 0%}
+            <div class="row">
+                <div class="col-xs-12 individual-comment">
+                    <span class='comment-title'>Comments:</span> {% for item in blog.blog_comments %}
+                    <div class="comment-box">
+                        <img class='comment-from-img' src="{{create_gra(item.comment_user.email)}}" alt="">
+                        <span class='comment-from'>{{item.comment_user.username}}</span>
+                        <p class='comment-content'>{{item.comment_content}}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <span class='comment-title'>Comments:</span>
+                    <span class="no-comment-box">
+                        There is no comment to display.
+                    </span>
+                </div>
+
+            </div>
+            {% endif %}
+            <hr>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="comment-box">
+                        <span class='comment-box-title'>Write a comment</span>
+                        <form action="{{url_for('comment')}}" method='post' accept-charset="UTF-8" autocomplete="on" name="CommentForm" id="CommentForm">
+                            <div class="form-group">
+                                <label for="Content">Content</label>
+                                <textarea maxlength="500" name="Content" id="Content" rows="10" class='form-control'></textarea>
+                            </div>
+                            <input type="hidden" name="BlogID" value="{{blog.id}}">
+                            <button type="submit" class="btn btn-default">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="row">
+                <div class="col-xs-12 well">
+                    <div class="category-headline">
+                        <h3>Categories</h3>
+                    </div>
+                    {% if categories and categories.data|length > 0 %}
+                    <ul class="list-unstyled">
+                        {% for category in categories.data %}
+                        <li><a href="{{url_for('category_blog', category_id = category.id)}}">{{category.name}}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>There is no category.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 well">
+                    <div class="category-headline">
+                        <h3>Tags</h3>
+                    </div>
+                    {% if tags and tags.data|count > 0 %} {% for tag in tags.data %}
+                    <a class='tag-link' href="{{url_for('tag_blog', tag_id = tag.id)}}">{{tag.name}}</a> {% endfor %} {% else %}
+                    <p>There is no tag.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

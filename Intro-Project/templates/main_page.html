@@ -26,29 +26,75 @@
             </div>
             <p><a href="{{url_for('category_list')}}">Categories</a></p>
             <p><a href="{{url_for('tag_list')}}">Tag List</a></p>
-            <p><a href="#">Link</a></p>
         </div>
         <div class="col-sm-7">
             {% if current_user.id == viewed_user.id %}
             <div class="row">
                 <div class="col-xs-12 share-button">
-                    <a href="{{url_for('blog_edit')}}" class="btn btn-primary btn-lg btn-block">Share Your Thoughts</a>
+                    <a href="{{url_for('edit_blog')}}" class="btn btn-primary btn-lg btn-block">Share Your Thoughts</a>
                 </div>
             </div>
             {% endif %}
             <div class="row">
-                <div class="col-sm-3">
-                    <div class="well">
-                        <p>John</p>
-                        <img src="bird.jpg" class="img-circle" height="55" width="55" alt="Avatar">
+                {% if blogs and blogs|length > 0%} {% for item in blogs %}
+                <div class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-10 col-xs-offset-1 blog-section well">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <a class='blog-link' href="{{url_for('view_blog', post_id = item.id)}}">{{item.blog_title}}</a>
+                                    <p class='blog-content'>{{shorthen_content(item.blog_content)}}</p>
+                                    <p class="blog-read-more">
+                                      {% if current_user.id == item.blog_user_id %}
+                                      <a  type="button" href="{{url_for('edit_blog', blog_id = item.id)}}" class="blog-edit-link btn btn-primary">Edit</a>
+                                      {% else %}
+                                      <a id="likelink{{item.id}}" type="button" href="javascript:void(0)" onclick='likeBlog({{item.id}})' class="blog-edit-link btn btn-success">
+                                      {% if item not in current_user.user_likes %}
+                                      Like
+                                      {% else %}
+                                      Dislike
+                                      {% endif %}
+                                      </a>
+                                      {% endif %}
+                                      <a  type="button" href="{{url_for('view_blog', id = item.id)}}" class="blog-read-more-link btn btn-default">Read More</a>
+                                    </p>
+
+                                </div>
+                            </div>
+                            <div class="row blog-info-section">
+                                <div class="col-sm-4 blog-created-info">
+                                    <p class='blog-created-info-text'>Created By:</p>
+                                    <a style="float:left;" href="{{url_for('view_user', user_id = item.blog_user_id)}}" title='{{item.blog_user.username}}'>
+                                        <img class="blog-created-user-picture" src="{{create_gra(item.blog_user.email)}}" alt="">
+                                    </a>
+                                    <p class='blog-created-user'>
+                                        <span>{{item.blog_user.username}}</span>
+                                        <span>{{item.blog_date}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-4 blog-category-info">
+                                    <p class="blog-category-info-text">Category:</p>
+                                    <a class='blog-category-link' href="{{url_for('category_blog', category_id = item.blog_category_id)}}">{{item.blog_category.name}}</a>
+                                </div>
+                                <div class="col-sm-4 blog-tag-info">
+                                    <p class="blog-tag-info-text">Tags:</p>
+                                    <div class="blog-tags">
+                                        {% for tag in item.blog_tags %}
+                                        <a class='blog-tag-link' href="{{url_for('tag_blog', tag_id = tag.id)}}">{{tag.name}}</a> {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-9">
-                    <div class="well">
-                        <p>Just Forgot that I had to mention something about someone to someone about how I forgot something, but now I forgot it. Ahh, forget it! Or wait. I remember.... no I don't.</p>
-                    </div>
+                {% endfor %} {% else %}
+                <div class="col-xs-12">
+                    <p>There is no post.</p>
                 </div>
+                {% endif %}
+
             </div>
+
 
         </div>
         <div class="col-sm-2">
@@ -82,4 +128,31 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% if current_user.id != viewed_user.id %}
+<script type="text/javascript">
+function likeBlog(id){
+  $.ajax({
+    url: '{{url_for('like')}}',
+    dataType: 'text',
+    method: 'GET',
+    beforeSend: function(){
+      $('#likelink' + id).attr('disabled','disabled');
+    },
+    data: { post_id: id },
+    error: function(){
+        alert('Something went wrong!');
+        $('#likelink' + id).removeAttr('disabled','disabled');
+    },
+    success: function(response){
+      $('#likelink' + id).removeAttr('disabled','disabled');
+      $('#likelink' + id).text(response.split('#')[1]);
+    }
+
+  })
+}
+</script>
+{% endif %}
 {% endblock %}

@@ -1,118 +1,263 @@
-from orm_classes.user import User, Category, Tag, FollowRelation, LikeRelation, Blog, Comment
+from orm_classes.orm import User, Category, Tag, FollowRelation, LikeRelation, Blog, Comment, TagRelation
 from classes.list_result import ListResult
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from utils.utils import check_password_sha256, hash_password_sha256, generate_random_string
-
-Base = declarative_base()
-
-engine = create_engine(
-    'mysql+pymysql://Udacity:UdacityFullStack@188.121.44.181/UdacityBackEnd')
-Base.metadata.bind = engine
-database_session = sessionmaker(bind=engine)
-session = database_session()
 
 
 class DatabaseOperations:
 
-    def add_user(self, first_name, last_name, username, email, password, password_salt):
+    def __init__(self, session):
+        self.session = session
 
-        password_salt = generate_random_string(10)
-        newUser = User(first_name=first_name, last_name=last_name, username=username,
-                       password=hash_password_sha256(password, password_salt), email=email, password_salt=password_salt)
-        session.add(newUser)
-        session.flush()
-        session.refresh(newUser)
-        print newUser.id
-        return newUser
+    def add_user(self, first_name, last_name, username, email, password, password_salt):
+        try:
+            password_salt = generate_random_string(10)
+            newUser = User(first_name=first_name, last_name=last_name, username=username,
+                           password=hash_password_sha256(password, password_salt), email=email, password_salt=password_salt)
+            self.session.add(newUser)
+            self.session.commit()
+            self.session.refresh(newUser)
+            return newUser
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_users(self, page=1, page_size=25):
-        return ListResult(session.query(User).order_by(User.id).all(), session.query(User).count(), page, page_size)
+        try:
+            return ListResult(self.session.query(User).order_by(User.id).all(), 0, page, page_size)
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
+
+    def get_users_by_username(self, name, page=1, page_size=25):
+        try:
+            return ListResult(self.session.query(User).filter(User.username.contains(name)).all(), 0, page, page_size)
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
     def get_user(self, id):
-        return session.query(User).filter(User.id == id).first()
+        try:
+            return self.session.query(User).filter(User.id == id).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_user_by_email(self, email):
         try:
-            if engine.dialect.has_table(engine, User.__tablename__):
-                return session.query(User).join(FollowRelation).filter(User.email == email).first()
-            return None
+            return self.session.query(User).filter(User.email == email).one()
         except Exception as e:
-            return None
-        else:
-            pass
+            print e
+        finally:
+            print 'Done'
 
     def get_user_by_username(self, username):
         try:
-            if engine.dialect.has_table(engine, User.__tablename__):
-                return session.query(User).filter(User.username == username).first()
-            return None
+            return self.session.query(User).filter(User.username == username).one()
         except Exception as e:
             print e
-            return None
-        else:
-            pass
+        finally:
+            print 'Done'
 
     def follow_user(self, user, following_user):
-        session.execute(FollowRelation.insert().values(
-            [(user.id, following_user.id)]))
+        try:
+            self.session.execute(FollowRelation.insert().values(
+                [(user.id, following_user.id)]))
+            self.session.refresh(user)
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def unfollow_user(self, user, unfollow_user):
         try:
-            session.execute(FollowRelation.delete(user.id == FollowRelation.c.follower_id
-                                                  and unfollow_user.id == FollowRelation.c.followee_id))
+            self.session.execute(FollowRelation.delete(user.id == FollowRelation.c.follower_id
+                                                       and unfollow_user.id == FollowRelation.c.followee_id))
+            self.session.refresh(user)
         except Exception as e:
             print e
-        else:
-            pass
+        finally:
+            print 'Done'
+
+    def like_blog(self, user, blog):
+        try:
+            self.session.execute(LikeRelation.insert().values(
+                [(blog.id, user.id)]))
+            self.session.refresh(user)
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def unlike_blog(self, user, blog):
+        try:
+            self.session.execute(LikeRelation.delete(user.id == LikeRelation.c.user_id
+                                                     and blog.id == LikeRelation.c.blog_id))
+            self.session.refresh(user)
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def comment_blog(self, comment):
+        try:
+            self.session.add(comment)
+            self.session.commit()
+            self.session.refresh(comment)
+            return comment
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_categories(self, page=1, page_size=25):
-        cat_list = ListResult(session.query(Category).order_by(
-            Category.name).all(),
-            session.query(Category).order_by(Category.id).count(), page, page_size)
-        return cat_list
+        try:
+            cat_list = ListResult(self.session.query(Category).all(),
+                                  0, page, page_size)
+            return cat_list
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_category(self, id):
-        return session.query(Category).filter(Category.id == id).first()
+        try:
+            return self.session.query(Category).filter(Category.id == id).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_category_by_name(self, name):
-        return session.query(Category).filter(Category.name == name).first()
+        try:
+            return self.session.query(Category).filter(Category.name == name).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def add_category(self, name):
-        category = Category(name=name)
-        session.add(category)
-        session.flush()
-        session.refresh(category)
-        return category
+        try:
+            category = Category(name=name)
+            self.session.add(category)
+            self.session.commit()
+            self.session.refresh(category)
+            return category
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def update_category(self, category):
-        existing_cat = session.query(Category).get(category.id)
-        existing_cat.name = category.name
-        session.commit()
-        return existing_cat
+        try:
+            existing_cat = self.session.query(Category).get(category.id)
+            existing_cat.name = category.name
+            self.session.commit()
+            return existing_cat
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_tags(self, page=1, page_size=25):
-        tag_list = ListResult(session.query(Tag).order_by(
-            Tag.name).all(),
-            session.query(Tag).order_by(Tag.id).count(), page, page_size)
-        return tag_list
+        try:
+            tag_list = ListResult(self.session.query(Tag).order_by(
+                Tag.name).all(),
+                0, page, page_size)
+            return tag_list
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_tag(self, id):
-        return session.query(Tag).filter(Tag.id == id).first()
+        try:
+            return self.session.query(Tag).filter(Tag.id == id).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def get_tag_by_name(self, name):
-        return session.query(Tag).filter(Tag.name == name).first()
+        try:
+            return self.session.query(Tag).filter(Tag.name == name).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def add_tag(self, name):
-        tag = Tag(name=name)
-        session.add(tag)
-        session.flush()
-        session.refresh(tag)
-        return tag
+        try:
+            tag = Tag(name=name)
+            self.session.add(tag)
+            self.session.commit()
+            self.session.refresh(tag)
+            return tag
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
 
     def update_tag(self, tag):
-        existing_tag = session.query(Tag).get(tag.id)
-        existing_tag.name = tag.name
-        session.commit()
-        return existing_tag
+        try:
+            existing_tag = self.session.query(Tag).get(tag.id)
+            existing_tag.name = tag.name
+            self.session.commit()
+            return existing_tag
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def get_blogs(self, page=1, page_size=25):
+        try:
+            return ListResult(self.session.query(Blog).order_by(
+                Blog.blog_date).all(),
+                0, page, page_size)
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def get_blog(self, id):
+        try:
+            return self.session.query(Blog).filter(Blog.id == id).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def add_blog(self, blog, blog_tags):
+        try:
+            self.session.add(blog)
+            self.session.commit()
+            self.session.refresh(blog)
+            for tag in blog_tags:
+                self.session.execute(
+                    TagRelation.insert().values([(blog.id, tag.id)]))
+            self.session.refresh(blog)
+            return blog
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def update_blog(self, blog, blog_tags):
+        try:
+            self.session.commit()
+            self.session.refresh(blog)
+            self.session.execute(TagRelation.delete(
+                blog.id == TagRelation.c.blog_id))
+            for tag in blog_tags:
+                self.session.execute(TagRelation.insert().values(
+                    [(blog.id, tag.id)]))
+            self.session.refresh(blog)
+            return blog
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
