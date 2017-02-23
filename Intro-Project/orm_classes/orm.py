@@ -85,7 +85,6 @@ class Blog(Base):
     blog_user = relationship('User',  back_populates='blogs')
     blog_date = Column(DateTime, nullable=False)
     blog_comments = relationship('Comment', back_populates='comment_blog')
-
     blog_tags = relationship(
         "Tag", secondary=TagRelation, back_populates="tag_blogs")
 

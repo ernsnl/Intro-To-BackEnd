@@ -24,6 +24,12 @@
                         <img class='comment-from-img' src="{{create_gra(item.comment_user.email)}}" alt="">
                         <span class='comment-from'>{{item.comment_user.username}}</span>
                         <p class='comment-content'>{{item.comment_content}}</p>
+                        {% if current_user.id == item.comment_user_id %}
+                        <form class="" action="{{url_for('delete_comment', comment_id = item.id)}}" method="post">
+                            <button class="btn btn-danger" type='submit' href="{{url_for('delete_comment', comment_id = item.id)}}">Delete</button>
+                        </form>
+
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>

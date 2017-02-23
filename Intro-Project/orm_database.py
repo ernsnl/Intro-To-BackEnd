@@ -114,6 +114,16 @@ class DatabaseOperations:
         finally:
             print 'Done'
 
+    def delete_comment(self, comment):
+        try:
+            self.session.commit()
+            self.session.refresh(comment)
+            return comment
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
     def get_categories(self, page=1, page_size=25):
         try:
             cat_list = ListResult(self.session.query(Category).all(),
@@ -246,6 +256,15 @@ class DatabaseOperations:
         finally:
             print 'Done'
 
+    def delete_blog(self, blog):
+        try:
+            self.session.delete(blog)
+            self.session.commit()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
     def update_blog(self, blog, blog_tags):
         try:
             self.session.commit()
@@ -257,6 +276,23 @@ class DatabaseOperations:
                     [(blog.id, tag.id)]))
             self.session.refresh(blog)
             return blog
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def get_comment(self, comment_id):
+        try:
+            return self.session.query(Comment).filter(Comment.id == comment_id).first()
+        except Exception as e:
+            print e
+        finally:
+            print 'Done'
+
+    def delete_comment(self, comment):
+        try:
+            self.session.delete(comment)
+            self.session.commit()
         except Exception as e:
             print e
         finally:

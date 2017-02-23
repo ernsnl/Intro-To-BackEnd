@@ -319,13 +319,51 @@ def comment():
             db.comment_blog(new_comment)
             return redirect(url_for('view_blog', id=current_blog))
         else:
-            return 'Error'
+            return redirect(url_for('blog_list'))
     except Exception as e:
         print e
     finally:
         current_session.close()
 
+@app.route('/delete_comment/<int:comment_id>', methods=['POST'])
+def delete_comment(comment_id):
+    database_session = sessionmaker(bind=engine)
+    current_session = database_session()
+    db = DatabaseOperations(current_session)
+    try:
+        if request.method == 'POST' and comment_id > 0:
+            current_user = db.get_user_by_username(session['username'])
+            current_comment = db.get_comment(comment_id)
+            print current_comment
+            current_blog = current_comment.comment_blog_id
+            db.delete_comment(current_comment)
+            return redirect(url_for('view_blog', id=current_blog))
+        else:
+            return redirect(url_for('blog_posts'))
+    except Exception as e:
+        print e
+    finally:
+        current_session.close()
 
+@app.route('/delete_blog/<int:blog_id>' ,  methods=['POST'])
+def delete_blog(blog_id):
+    database_session = sessionmaker(bind=engine)
+    current_session = database_session()
+    db = DatabaseOperations(current_session)
+    try:
+        if request.method == 'POST' and blog_id > 0:
+            current_user = db.get_user_by_username(session['username'])
+            current_blog = db.get_blog(blog_id)
+            if current_blog.blog_user_id != current_user.id:
+                return redirect(url_for('blog_posts'))
+            db.delete_blog(current_blog)
+            return redirect(url_for('blog_posts'))
+        else:
+            return redirect(url_for('blog_posts'))
+    except Exception as e:
+        print e
+    finally:
+        current_session.close()
 
 @app.route('/categorylist')
 def category_list():
@@ -532,6 +570,8 @@ def edit_blog(blog_id=None):
         if request.method == 'POST':
             if blog_id:
                 get_existing_blog = db.get_blog(blog_id)
+                if get_existing_blog.blog_user_id != current_user.id:
+                    return redirect(url_for('blog_posts'))
                 get_existing_blog.blog_title = request.form.get('Title')
                 get_existing_blog.blog_content = request.form.get('Content')
                 get_existing_blog.blog_category_id = request.form.get(
